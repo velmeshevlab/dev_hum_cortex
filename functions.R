@@ -419,3 +419,33 @@ phase_sub_v2 <- function(gene, fit, age, age.comp, factor = 0.2, factor2 = 0.4){
   }
   c(age_max, mode, direction)
 }
+
+get_branch_genes <- function(cds, target.lins, lineages){
+  cds_name = deparse(substitute(cds))
+  all.names = list()
+  i = 0
+  for(lin in target.lins){
+    i = i+1
+    d = get_pt_exp(cds, lin, I = 0)
+    names = gsub(paste0(lin, "__"), "", rownames(d))
+    fit = eval(parse(text=paste0(cds_name, "@expectation$", lin)))
+    names = names[names %in% colnames(fit)]
+    all.names[[i]] <- names
+  }
+  names = Reduce(intersect, all.names)
+  all.names = list()
+  all.res = list()
+  i = 0
+  for(lin in target.lins){
+    i = i+1
+    res = sapply(names, AUC_window_sub, cds = cds, lineage = lin, comp_lineages = lineages[!(lineages %in% target.lins)], factor = 1.2, window_ratio = 0.01)
+    res = res[res != 0]
+    all.names[[i]] <- names(res)
+    all.res[[i]] <- res
+  }
+  names = Reduce(intersect, all.names)
+  all.res = lapply(all.res, f2 <- function(x, y) x[y], y = names)
+  res = Reduce(cbind, all.res)
+  colnames(res) <- target.lins
+  res
+}
