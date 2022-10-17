@@ -187,215 +187,32 @@ for(lineage in lineages){
 
 #find branch-specific genes
 #1
-d = get_pt_exp(cds, "L2_3", I = 0)
-names = gsub(paste0("L2_3", "__"), "", rownames(d))
-fit = cds@expectation$L2_3
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L2_4", I = 0)
-names = gsub(paste0("L2_4", "__"), "", rownames(d))
-fit = cds@expectation$L2_4
-names2 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L4", I = 0)
-names = gsub(paste0("L4", "__"), "", rownames(d))
-fit = cds@expectation$L4
-names3 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L6_IT", I = 0)
-names = gsub(paste0("L6_IT", "__"), "", rownames(d))
-fit = cds@expectation$L6_IT
-names4 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L5_6_IT", I = 0)
-names = gsub(paste0("L5_6_IT", "__"), "", rownames(d))
-fit = cds@expectation$L5_6_IT
-names5 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L5", I = 0)
-names = gsub(paste0("L5", "__"), "", rownames(d))
-fit = cds@expectation$L5
-names6 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L6b", I = 0)
-names = gsub(paste0("L6b", "__"), "", rownames(d))
-fit = cds@expectation$L6b
-names7 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L6_CT", I = 0)
-names = gsub(paste0("L6_CT", "__"), "", rownames(d))
-fit = cds@expectation$L6_CT
-names8 = names[names %in% colnames(fit)]
-names = intersect(intersect(intersect(intersect(intersect(intersect(intersect(names1, names2),names3),names4),names5),names6),names7),names8)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "L2_3", comp_lineages = c("AST"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "L2_4", comp_lineages = c("AST"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res3 = sapply(names, AUC_window_sub, cds = cds, lineage = "L4", comp_lineages = c("AST"), factor = 1.2, window_ratio = 0.01)
-res3 = res3[res3 != 0]
-res4 = sapply(names, AUC_window_sub, cds = cds, lineage = "L6_IT", comp_lineages = c("AST"), factor = 1.2, window_ratio = 0.01)
-res4 = res4[res4 != 0]
-res5 = sapply(names, AUC_window_sub, cds = cds, lineage = "L5_6_IT", comp_lineages = c("AST"), factor = 1.2, window_ratio = 0.01)
-res5 = res5[res5 != 0]
-res6 = sapply(names, AUC_window_sub, cds = cds, lineage = "L5", comp_lineages = c("AST"), factor = 1.2, window_ratio = 0.01)
-res6 = res6[res6 != 0]
-res7 = sapply(names, AUC_window_sub, cds = cds, lineage = "L6b", comp_lineages = c("AST"), factor = 1.2, window_ratio = 0.01)
-res7 = res7[res7 != 0]
-res8 = sapply(names, AUC_window_sub, cds = cds, lineage = "L6_CT", comp_lineages = c("AST"), factor = 1.2, window_ratio = 0.01)
-res8 = res8[res8 != 0]
-res = intersect(intersect(intersect(intersect(intersect(intersect(intersect(names(res1), names(res2)),names(res3)),names(res4)),names(res5)),names(res6)),names(res7)),names(res8))
-res = cbind(res1[res], res2[res], res3[res], res4[res], res5[res], res6[res], res7[res], res8[res])
-colnames(res) <- c("L2_3", "L2_4", "L4", "L6_IT", "L5_6_IT", "L5", "L6b", "L6_CT")
-write.table(res, "1_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("L2_3", "L2_4", "L4", "L6_IT", "L5_6_IT", "L5", "L6b", "L6_CT"), names(cds@lineages))
+write.table(res, "Ex_1.txt", sep = "\t", quote = F)
 
 #2
-d = get_pt_exp(cds, "L6b", I = 0)
-names = gsub(paste0("L6b", "__"), "", rownames(d))
-fit = cds@expectation$L6b
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L6_CT", I = 0)
-names = gsub(paste0("L6_CT", "__"), "", rownames(d))
-fit = cds@expectation$L6_CT
-names2 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L5", I = 0)
-names = gsub(paste0("L5", "__"), "", rownames(d))
-fit = cds@expectation$L5
-names3 = names[names %in% colnames(fit)]
-names = intersect(intersect(names1, names2),names3)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "L6b", comp_lineages = c("AST", "L2_3", "L2_4", "L4", "L6_IT",  "L5_6_IT"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "L5", comp_lineages = c("AST", "L2_3", "L2_4", "L4", "L6_IT",  "L5_6_IT"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res3 = sapply(names, AUC_window_sub, cds = cds, lineage = "L6_CT", comp_lineages = c("AST", "L2_3", "L2_4", "L4", "L6_IT",  "L5_6_IT"), factor = 1.2, window_ratio = 0.01)
-res3 = res3[res3 != 0]
-res = intersect(intersect(names(res1), names(res2)),names(res3))
-res = cbind(res1[res], res2[res], res3[res])
-colnames(res) <- c("L6b", "L6_CT", "L5")
-write.table(res, "2.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("L6b", "L6_CT", "L5"), names(cds@lineages))
+write.table(res, "Ex_2.txt", sep = "\t", quote = F)
 
 #3
-d = get_pt_exp(cds, "L2_3", I = 0)
-names = gsub(paste0("L2_3", "__"), "", rownames(d))
-fit = cds@expectation$L2_3
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L2_4", I = 0)
-names = gsub(paste0("L2_4", "__"), "", rownames(d))
-fit = cds@expectation$L2_4
-names2 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L4", I = 0)
-names = gsub(paste0("L4", "__"), "", rownames(d))
-fit = cds@expectation$L4
-names3 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L6_IT", I = 0)
-names = gsub(paste0("L6_IT", "__"), "", rownames(d))
-fit = cds@expectation$L6_IT
-names4 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L5_6_IT", I = 0)
-names = gsub(paste0("L5_6_IT", "__"), "", rownames(d))
-fit = cds@expectation$L5_6_IT
-names5 = names[names %in% colnames(fit)]
-names = intersect(intersect(intersect(intersect(names1, names2),names3),names4),names5)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "L2_3", comp_lineages = c("AST", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "L2_4", comp_lineages = c("AST", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res3 = sapply(names, AUC_window_sub, cds = cds, lineage = "L4", comp_lineages = c("AST", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res3 = res3[res3 != 0]
-res4 = sapply(names, AUC_window_sub, cds = cds, lineage = "L6_IT", comp_lineages = c("AST", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res4 = res4[res4 != 0]
-res5 = sapply(names, AUC_window_sub, cds = cds, lineage = "L5_6_IT", comp_lineages = c("AST", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res5 = res5[res5 != 0]
-res = intersect(intersect(intersect(intersect(names(res1), names(res2)),names(res3)),names(res4)),names(res5))
-res = cbind(res1[res], res2[res], res3[res], res4[res], res5[res])
-colnames(res) <- c("L2_3", "L2_4", "L4", "L6_IT", "L5_6_IT")
-write.table(res, "3_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("L2_3", "L2_4", "L4", "L6_IT", "L5_6_IT"), names(cds@lineages))
+write.table(res, "Ex_3.txt", sep = "\t", quote = F)
 
 #4
-d = get_pt_exp(cds, "L2_3", I = 0)
-names = gsub(paste0("L2_3", "__"), "", rownames(d))
-fit = cds@expectation$L2_3
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L2_4", I = 0)
-names = gsub(paste0("L2_4", "__"), "", rownames(d))
-fit = cds@expectation$L2_4
-names2 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L4", I = 0)
-names = gsub(paste0("L4", "__"), "", rownames(d))
-fit = cds@expectation$L4
-names3 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L6_IT", I = 0)
-names = gsub(paste0("L6_IT", "__"), "", rownames(d))
-fit = cds@expectation$L6_IT
-names4 = names[names %in% colnames(fit)]
-names = intersect(intersect(intersect(names1, names2),names3),names4)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "L2_3", comp_lineages = c("AST", "L5_6_IT", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "L2_4", comp_lineages = c("AST", "L5_6_IT", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res3 = sapply(names, AUC_window_sub, cds = cds, lineage = "L4", comp_lineages = c("AST", "L5_6_IT", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res3 = res3[res3 != 0]
-res4 = sapply(names, AUC_window_sub, cds = cds, lineage = "L6_IT", comp_lineages = c("AST", "L5_6_IT", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res4 = res4[res4 != 0]
-res = intersect(intersect(intersect(names(res1), names(res2)),names(res3)),names(res4))
-res = cbind(res1[res], res2[res], res3[res], res4[res])
-colnames(res) <- c("L2_3", "L2_4", "L4", "L6_IT")
-write.table(res, "4_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("L2_3", "L2_4", "L4", "L6_IT"), names(cds@lineages))
+write.table(res, "Ex_4", sep = "\t", quote = F)
 
 #5
-d = get_pt_exp(cds, "L4", I = 0)
-names = gsub(paste0("L4", "__"), "", rownames(d))
-fit = cds@expectation$L4
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L2_4", I = 0)
-names = gsub(paste0("L2_4", "__"), "", rownames(d))
-fit = cds@expectation$L2_4
-names2 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L6_IT", I = 0)
-names = gsub(paste0("L6_IT", "__"), "", rownames(d))
-fit = cds@expectation$L6_IT
-names3 = names[names %in% colnames(fit)]
-names = intersect(intersect(names1, names2),names3)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "L4", comp_lineages = c("AST", "L2_3", "L5_6_IT", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "L2_4", comp_lineages = c("AST", "L2_3", "L5_6_IT", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res3 = sapply(names, AUC_window_sub, cds = cds, lineage = "L6_IT", comp_lineages = c("AST", "L2_3", "L5_6_IT", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res3 = res2[res2 != 0]
-res = intersect(intersect(names(res1), names(res2)), names(res3))
-res = cbind(res1[res], res2[res], res3[res])
-colnames(res) <- c("L4", "L2_4", "L6_IT")
-write.table(res, "5_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("L4", "L2_4", "L6_IT"), names(cds@lineages))
+write.table(res, "Ex_5.txt", sep = "\t", quote = F)
 
 #6
-d = get_pt_exp(cds, "L2_4", I = 0)
-names = gsub(paste0("L2_4", "__"), "", rownames(d))
-fit = cds@expectation$L2_4
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L6_IT", I = 0)
-names = gsub(paste0("L6_IT", "__"), "", rownames(d))
-fit = cds@expectation$L6_IT
-names2 = names[names %in% colnames(fit)]
-names = intersect(names1, names2)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "L2_4", comp_lineages = c("AST", "L2_3", "L4", "L5_6_IT", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "L6_IT", comp_lineages = c("AST", "L2_3", "L4", "L5_6_IT", "L5", "L6b", "L6_CT"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res = intersect(names(res1), names(res2))
-res = cbind(res1[res], res2[res])
-colnames(res) <- c("L2_4", "L6_IT")
-write.table(res, "6_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("L2_4", "L6_IT"), names(cds@lineages))
+write.table(res, "Ex_6.txt", sep = "\t", quote = F)
 
 #7
-d = get_pt_exp(cds, "L6b", I = 0)
-names = gsub(paste0("L6b", "__"), "", rownames(d))
-fit = cds@expectation$L6b
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "L6_CT", I = 0)
-names = gsub(paste0("L6_CT", "__"), "", rownames(d))
-fit = cds@expectation$L6_CT
-names2 = names[names %in% colnames(fit)]
-names = intersect(names1, names2)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "L6b", comp_lineages = c("AST", "L2_3", "L2_4", "L4", "L5", "L6_IT", "L5_6_IT"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "L6_CT", comp_lineages = c("AST", "L2_3", "L2_4", "L4", "L5", "L6_IT", "L5_6_IT"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res = intersect(names(res1), names(res2))
-res = cbind(res1[res], res2[res])
-colnames(res) <- c("L6b", "L6_CT")
-write.table(res, "7_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("L6b", "L6_CT"), names(cds@lineages))
+write.table(res, "Ex_7.txt", sep = "\t", quote = F)
 
 #determine dynamic expression classification and age of max expression for lineage genes
 meta = read.data("meta_ext.txt")
@@ -725,173 +542,32 @@ cds = combine_lineages(cds, 93)
 
 #branch-specific gene analysis
 #(1)
-d = get_pt_exp(cds, "VIP", I = 0)
-names = gsub(paste0("VIP", "__"), "", rownames(d))
-fit = cds@expectation$VIP
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "CALB2", I = 0)
-names = gsub(paste0("CALB2", "__"), "", rownames(d))
-fit = cds@expectation$CALB2
-names2 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "RELN", I = 0)
-names = gsub(paste0("RELN", "__"), "", rownames(d))
-fit = cds@expectation$RELN
-names3 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "SV2C", I = 0)
-names = gsub(paste0("SV2C", "__"), "", rownames(d))
-fit = cds@expectation$SV2C
-names4 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "NOS", I = 0)
-names = gsub(paste0("NOS", "__"), "", rownames(d))
-fit = cds@expectation$NOS
-names5 = names[names %in% colnames(fit)]
-names = intersect(intersect(intersect(intersect(names1, names2),names3),names4),names5)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "VIP", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "CALB2", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res3 = sapply(names, AUC_window_sub, cds = cds, lineage = "RELN", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST"), factor = 1.2, window_ratio = 0.01)
-res3 = res3[res3 != 0]
-res4 = sapply(names, AUC_window_sub, cds = cds, lineage = "SV2C", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST"), factor = 1.2, window_ratio = 0.01)
-res4 = res3[res3 != 0]
-res5 = sapply(names, AUC_window_sub, cds = cds, lineage = "NOS", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST"), factor = 1.2, window_ratio = 0.01)
-res5 = res3[res3 != 0]
-res = intersect(intersect(intersect(intersect(names(res1), names(res2)),names(res3)),names(res4)),names(res5))
-res = cbind(res1[res], res2[res], res3[res], res4[res], res5[res])
-colnames(res) <- c("VIP", "CALB2", "RELN", "SV2C", "NOS")
-write.table(res, "CGE_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("VIP", "CALB2", "RELN", "SV2C", "NOS"), names(cds@lineages))
+write.table(res, "IN_1.txt", sep = "\t", quote = F)
 
 #(2)
-d = get_pt_exp(cds, "PV_MP", I = 0)
-names = gsub(paste0("PV_MP", "__"), "", rownames(d))
-fit = cds@expectation$PV_MP
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "PV", I = 0)
-names = gsub(paste0("PV", "__"), "", rownames(d))
-fit = cds@expectation$PV
-names2 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "SST_MAF", I = 0)
-names = gsub(paste0("SST_MAF", "__"), "", rownames(d))
-fit = cds@expectation$SST_MAF
-names3 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "SST", I = 0)
-names = gsub(paste0("SST", "__"), "", rownames(d))
-fit = cds@expectation$SST
-names4 = names[names %in% colnames(fit)]
-names = intersect(intersect(intersect(names1, names2),names3),names4)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "PV_MP", comp_lineages = c("VIP", "CALB2", "RELN", "SV2C", "NOS"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "PV", comp_lineages = c("VIP", "CALB2", "RELN", "SV2C", "NOS"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res3 = sapply(names, AUC_window_sub, cds = cds, lineage = "SST_MAF", comp_lineages = c("VIP", "CALB2", "RELN", "SV2C", "NOS"), factor = 1.2, window_ratio = 0.01)
-res3 = res3[res3 != 0]
-res4 = sapply(names, AUC_window_sub, cds = cds, lineage = "SST", comp_lineages = c("VIP", "CALB2", "RELN", "SV2C", "NOS"), factor = 1.2, window_ratio = 0.01)
-res4 = res3[res3 != 0]
-res = intersect(intersect(intersect(names(res1), names(res2)),names(res3)),names(res4))
-res = cbind(res1[res], res2[res], res3[res], res4[res])
-colnames(res) <- c("PV_MP", "PV", "SST_MAF", "SST")
-write.table(res, "MGE_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("PV_MP", "PV", "SST_MAF", "SST"), names(cds@lineages))
+write.table(res, "IN_2.txt", sep = "\t", quote = F)
 
 #(3)
-d = get_pt_exp(cds, "VIP", I = 0)
-names = gsub(paste0("VIP", "__"), "", rownames(d))
-fit = cds@expectation$VIP
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "CALB2", I = 0)
-names = gsub(paste0("CALB2", "__"), "", rownames(d))
-fit = cds@expectation$CALB2
-names2 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "RELN", I = 0)
-names = gsub(paste0("RELN", "__"), "", rownames(d))
-fit = cds@expectation$RELN
-names3 = names[names %in% colnames(fit)]
-names = intersect(intersect(names1, names2),names3)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "VIP", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST", "SV2C", "NOS"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "CALB2", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST", "SV2C", "NOS"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res3 = sapply(names, AUC_window_sub, cds = cds, lineage = "RELN", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST", "SV2C", "NOS"), factor = 1.2, window_ratio = 0.01)
-res3 = res3[res3 != 0]
-res = intersect(intersect(names(res1), names(res2)),names(res3))
-res = cbind(res1[res], res2[res], res3[res])
-colnames(res) <- c("VIP", "CALB2", "RELN")
-write.table(res, "3_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("VIP", "CALB2", "RELN"), names(cds@lineages))
+write.table(res, "IN_3.txt", sep = "\t", quote = F)
 
 #(4)
-d = get_pt_exp(cds, "CALB2", I = 0)
-names = gsub(paste0("CALB2", "__"), "", rownames(d))
-fit = cds@expectation$CALB2
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "RELN", I = 0)
-names = gsub(paste0("RELN", "__"), "", rownames(d))
-fit = cds@expectation$RELN
-names2 = names[names %in% colnames(fit)]
-names = intersect(names1, names2)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "CALB2", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST", "SV2C", "NOS", "VIP"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "RELN", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST", "SV2C", "NOS", "VIP"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res = intersect(names(res1), names(res2))
-res = cbind(res1[res], res2[res])
-colnames(res) <- c("CALB2", "RELN")
-write.table(res, "4_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("CALB2", "RELN"), names(cds@lineages))
+write.table(res, "IN_4.txt", sep = "\t", quote = F)
 
 #(5)
-d = get_pt_exp(cds, "SV2C", I = 0)
-names = gsub(paste0("SV2C", "__"), "", rownames(d))
-fit = cds@expectation$SV2C
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "NOS", I = 0)
-names = gsub(paste0("NOS", "__"), "", rownames(d))
-fit = cds@expectation$NOS
-names2 = names[names %in% colnames(fit)]
-names = intersect(names1, names2)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "SV2C", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST", "CALB2", "RELN", "VIP"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "NOS", comp_lineages = c("PV_MP", "PV", "SST_MAF", "SST", "CALB2", "RELN", "VIP"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res = intersect(names(res1), names(res2))
-res = cbind(res1[res], res2[res])
-colnames(res) <- c("SV2C", "NOS")
-write.table(res, "5_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("SV2C", "NOS"), names(cds@lineages))
+write.table(res, "IN_5.txt", sep = "\t", quote = F)
 
 #(6)
-d = get_pt_exp(cds, "PV_MP", I = 0)
-names = gsub(paste0("PV_MP", "__"), "", rownames(d))
-fit = cds@expectation$PV_MP
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "PV", I = 0)
-names = gsub(paste0("PV", "__"), "", rownames(d))
-fit = cds@expectation$PV
-names2 = names[names %in% colnames(fit)]
-names = intersect(names1, names2)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "PV_MP", comp_lineages = c("VIP", "CALB2", "RELN", "SV2C", "NOS", "SST_MAF", "SST"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "PV", comp_lineages = c("VIP", "CALB2", "RELN", "SV2C", "NOS", "SST_MAF", "SST"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res = intersect(names(res1), names(res2))
-res = cbind(res1[res], res2[res])
-colnames(res) <- c("PV_MP", "PV")
-write.table(res, "6_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("PV_MP", "PV"), names(cds@lineages))
+write.table(res, "IN_6.txt", sep = "\t", quote = F)
 
 #(7)
-d = get_pt_exp(cds, "SST_MAF", I = 0)
-names = gsub(paste0("SST_MAF", "__"), "", rownames(d))
-fit = cds@expectation$SST_MAF
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds, "SST", I = 0)
-names = gsub(paste0("SST", "__"), "", rownames(d))
-fit = cds@expectation$SST
-names2 = names[names %in% colnames(fit)]
-names = intersect(names1, names2)
-res1 = sapply(names, AUC_window_sub, cds = cds, lineage = "SST_MAF", comp_lineages = c("VIP", "CALB2", "RELN", "SV2C", "NOS", "PV_MP", "PV"), factor = 1.2, window_ratio = 0.01)
-res1 = res1[res1 != 0]
-res2 = sapply(names, AUC_window_sub, cds = cds, lineage = "SST", comp_lineages = c("VIP", "CALB2", "RELN", "SV2C", "NOS", "PV_MP", "PV"), factor = 1.2, window_ratio = 0.01)
-res2 = res2[res2 != 0]
-res = intersect(names(res1), names(res2))
-res = cbind(res1[res], res2[res])
-colnames(res) <- c("SST_MAF", "SST")
-write.table(res, "7_specific.txt", sep = "\t", quote = F)
+res = get_branch_genes(cds, c("SST_MAF", "SST"), names(cds@lineages))
+write.table(res, "IN_7.txt", sep = "\t", quote = F)
 
 #determine dynamic expression classification and age of max expression for lineage genes
 #lineage-specific analysis is performed using the same command as for excitatory neurons
@@ -949,6 +625,44 @@ cds_new = combine_objects(cds.male, cds.female, "Male", "Female")
 #############################
 #analysis of oligodendrocytes
 #############################
+#subset the clusters with ventral/dorsal progenitors, OPCs, and oligodendrocytes
+subset2 <- subset(data, idents = c("18", "11", "9", "5"))
+subset2 <- FindVariableFeatures(object = subset2)
+#run PCA. Select significant PCs based on a scree plot. Look for the last point before the plot becomes flat
+subset2 <- RunPCA(object = subset2)
+ElbowPlot(subset2, ndims = 30)
+#cluster data
+subset2 <- FindNeighbors(object = subset2, dims = 1:N)
+subset2 <- FindClusters(object = subset2)
+#embed in UMAP coordinates
+subset2 <- RunUMAP(object = subset2, dims = 1:N)
+#monocle3 trajectory
+#data is a Seurat object after clustering and UMAP
+#get gene counts, gene names and metadata
+d = GetAssayData(object = subset2, assay = "RNA", slot = "counts")
+gene_annotation = as.data.frame(rownames(d))
+rownames(gene_annotation) = rownames(d)
+colnames(gene_annotation) = 'gene_short_name'
+meta = subset2@"meta.data"
+#create monocle object
+cds = new_cell_data_set(d, cell_metadata = meta, gene_metadata = gene_annotation)
+#import Seurat umap to the monocle object
+s.umap <- subset2@"reductions"$umap[[]]
+s.umap = s.umap[colnames(cds),]
+reducedDims(cds)$"UMAP" <- s.umap
+#import Seurat clusters to the monocle object
+s.clusters = as.character(Idents(subset2))
+names(s.clusters) <- names(Idents(subset2))
+s.clusters = s.clusters[colnames(cds)]
+cds@clusters$"UMAP"$"clusters" <- s.clusters
+cds@clusters$UMAP$partitions <- cds@clusters$UMAP$clusters
+cds@clusters$UMAP$partitions[cds@clusters$UMAP$partitions != "1"] <- "1"
+#learn trajectory graph
+cds <- learn_graph(cds, use_partition = F)
+#Select the lineage trajectory
+lineage = "Oligo"
+cds <- isolate_graph(cds, 224, 109, lineage)
+#analysis of lineage-specific, sex- and region-enriched genes is performed using the code as for excitatory neurons
 
 ######################
 #analysis of microglia
