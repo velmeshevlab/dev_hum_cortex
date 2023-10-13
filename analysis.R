@@ -36,7 +36,7 @@ ggplot(data = sex.exp, aes(x = sex, y = XIST, fill = sex, label=individual)) + g
 ##############################
 ##############################
 
-#get the Seurat object (data) and metadata at https://cells.ucsc.edu/?ds=cortical-dev
+#get the Seurat object (data) and metadata at https://cells.ucsc.edu/?ds=pre-postnatal-cortex
 ##############################################
 #analysis of excitatory neurons and astrocytes
 ##############################################
