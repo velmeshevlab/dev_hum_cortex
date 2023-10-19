@@ -13,6 +13,7 @@ data1[["percent.rb"]] <- PercentageFeatureSet(data1, pattern = "^RP[SL]")
 data1 <- subset(data1, subset = nFeature_RNA >= 400 & percent.mt < 10 & percent.rb < 10)
 data1 <- subset(data1, subset = nFeature_RNA >= 400 & nCount_RNA >= 1000 & percent.mt <= 15)
 
+#Integration with Harmony
 #Herrring data
 data2@"meta.data"$orig.ident <- "Herring"
 Idents(data2) <- data2@"meta.data"$orig.ident
