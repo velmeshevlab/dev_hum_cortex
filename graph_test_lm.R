@@ -3,9 +3,20 @@ function (cds, neighbor_graph = c("knn", "principal_graph"),
     alternative = "greater", expression_family = "quasipoisson",
     cores = 1, verbose = FALSE) 
 {
+    nn_control_default <- get_global_variable('nn_control_annoy_euclidean')
+    nn_control <- set_nn_control(mode=3,
+                               nn_control=nn_control,
+                               nn_control_default=nn_control_default,
+                               nn_index=NULL,
+                               k=k,
+                               verbose=verbose)
     neighbor_graph <- match.arg(neighbor_graph)
-    lw <- monocle3:::calculateLW(cds, k = k, verbose = verbose, neighbor_graph = neighbor_graph, 
-        reduction_method = reduction_method)
+    lw <- calculateLW(cds=cds,
+                    k = k,
+                    neighbor_graph = neighbor_graph,
+                    reduction_method = reduction_method,
+                    verbose = verbose,
+                    nn_control = nn_control)
     if (verbose) {
         message("Performing Moran's I test: ...")
     }
@@ -23,8 +34,8 @@ function (cds, neighbor_graph = c("knn", "principal_graph"),
         else {
             exprs_val <- log10(exprs_val/sz + 0.1)
         }
-        df = cbind(as.data.frame(exprs_val), colData(cds)$sex, colData(cds)$region_broad)
-        colnames(df) <- c("exp", "sex", "region")
+        df = cbind(as.data.frame(exprs_val), colData(cds)$sex, colData(cds)$region_broad, colData(cds)$PMI, colData(cds)$UMI, colData(cds)$chemistry)
+        colnames(df) <- c("exp", "sex", "region", "PMI", "UMI", "chemistry")
         test_res <- tryCatch({
             if (method == "Moran_I") {
                 mt <- suppressWarnings(monocle3:::my.moran.test(df, lw, wc, alternative = alternative))
