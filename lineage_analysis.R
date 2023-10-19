@@ -7,7 +7,7 @@ source(file = "functions.R")
 ##############################
 ##############################
 
-#get the Seurat object (data) and metadata at https://cells.ucsc.edu/?ds=pre-postnatal-cortex
+#you can get the matrices and metadata for each lineage group (excitatory neurons, interneurons etc) at https://cells.ucsc.edu/?ds=pre-postnatal-cortex (snRNA-seq)
 ##############################################
 #analysis of excitatory neurons and astrocytes
 ##############################################
