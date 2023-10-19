@@ -3,61 +3,6 @@ source(file = "functions.R")
 
 ##############################
 ##############################
-#Integration of our snRNA-seq data with published developmental snRNA-seq
-#You can download the final integrated matrix and metadata with UMAP and clusters here: https://cells-test.gi.ucsc.edu/?ds=pre-postnatal-cortex
-##############################
-##############################
-
-#Harmony integration of our data with published developmental snRNA-seq datasets: Trevino et al Cell 2022, Ramos et al Nat Comm 2022, Trevino et al Cell 2021.
-#We downloaded gene expression matrices for each dataset and loaded into Seurat. 
-#Each data set was filtered prior to integration (example for Ramos data)
-data1[["percent.mt"]] <- PercentageFeatureSet(data1, pattern = "^MT-")
-data1[["percent.rb"]] <- PercentageFeatureSet(data1, pattern = "^RP[SL]")
-data1 <- subset(data1, subset = nFeature_RNA >= 400 & percent.mt < 10 & percent.rb < 10)
-data1 <- subset(data1, subset = nFeature_RNA >= 400 & nCount_RNA >= 1000 & percent.mt <= 15)
-
-#Herrring data
-data2@"meta.data"$orig.ident <- "Herring"
-Idents(data2) <- data2@"meta.data"$orig.ident
-#Ramos data
-data1@"meta.data"$orig.ident <- "Ramos"
-Idents(data1) <- data1@"meta.data"$orig.ident
-#Velmeshev data
-data@"meta.data"$orig.ident <- "U01"
-Idents(data) <- data@"meta.data"$orig.ident
-#Trevino data
-data3@"meta.data"$orig.ident <- "Trevino"
-Idents(data3) <- data3@"meta.data"$orig.ident
-#integration
-genes = intersect(intersect(intersect(rownames(data), rownames(data1)), rownames(data2)), rownames(data3))
-data <- merge(data[genes,], y = c(data1[genes,], data2[genes,], data3[genes,]), add.cell.ids = c("U01", "Ramos", "Herring", "Trevino"))
-data <- NormalizeData(data)
-data <-FindVariableFeatures(data,selection.method='mean.var.plot')
-data <-ScaleData(data,features=VariableFeatures(data))
-#run PCA. Select significant PCs based on a scree plot. Look for the last point before the plot becomes flat
-data <-RunPCA(data,features = VariableFeatures(data),verbose=F)
-ElbowPlot(object = data, ndims = 40)
-N = 19
-data@reductions$pca2 <- data@reductions$pca
-data@reductions$pca2@"cell.embeddings" <- data@reductions$pca2@"cell.embeddings"[,1:N]
-data<- RunHarmony(data, group.by.vars = "chemistry", theta = 2, max.iter.harmony = 20, reduction = 'pca2', dims.use = 1:N)
-data<- RunUMAP(data, dims = 1:N, reduction = 'harmony', return.model=TRUE)
-data<- FindNeighbors(data, reduction = "harmony", dims = 1:N) %>% FindClusters()
-
-#sex determination
-d = AverageExpression(data, group.by = "individual", features = c("XIST", "TSIX", "UTY", "DDX3Y", "KDM5D", "USP9Y", "ZFX", "KDM5C", "RPS4X", "DDX3X", "EIF1AY", "TMSB4Y"))
-d = t(data.frame(d[["RNA"]], check.names=F))
-sex = data@'meta.data'[,c("individual", "sex")]
-rownames(sex) <- NULL
-sex = sex[!duplicated(sex), ]
-rownames(sex) <- sex$individual
-sex = sex[rownames(d),]
-d = cbind(d, sex)
-#plot for each sex-specific gene
-ggplot(d, aes(x=sex, y=EIF1AY, fill = sex)) + geom_violin(scale = "width") + geom_jitter(aes(colour = sex), shape=16, position=position_jitter(0.2), size = 4) + scale_color_manual(values = c("red", "blue")) + ggtitle("EIF1AY") + theme(panel.background = element_blank(), plot.title = element_text(size=42, face = "bold", hjust = 0.5), legend.position="none", axis.title.x=element_blank(), axis.title.y=element_blank(), axis.text.x = element_text(size=32), axis.text.y = element_text(size=24), axis.ticks.x = element_blank(), axis.line.x = element_line(colour = "black"), axis.line.y = element_line(colour = "black"))
-
-##############################
-##############################
 #Analysis of specific lineages
 ##############################
 ##############################
