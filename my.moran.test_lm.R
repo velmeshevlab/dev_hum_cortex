@@ -15,7 +15,7 @@ function (x, listw, wc, alternative = "greater", randomisation = TRUE)
     }
     n <- length(listw$neighbours)
     S02 <- wc$S0 * wc$S0
-    model <- lm(exp ~ sex + region, data = x)
+    model <- lm(exp ~ sex + region + as.numeric(PMI) + as.numeric(UMI) + chemistry, data = x)
     res <- spdep::lm.morantest(model, listw, zero.policy = zero.policy, alternative = alternative)
     statistic = as.numeric(res[1])
     names(statistic) <- "Moran I statistic standard deviate"
