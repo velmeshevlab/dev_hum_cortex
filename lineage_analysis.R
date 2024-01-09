@@ -500,4 +500,54 @@ cds_new <- compress_lineages_v2(cds_new, start = 143, cores = 12)
 ###########################
 #analysis of vascular cells
 ###########################
+graph_control = setNames(list(3, 1, 1, FALSE, TRUE, FALSE, NULL, 10, 1e-5, 0.05, 0.01), c("euclidean_distance_ratio","geodesic_distance_ratio","minimal_branch_len","orthogonal_proj_tip","prune_graph","scale","rann.k","maxiter","eps","L1.gamma","L1.sigma"))
+###Endothelial cells
+#select and recluster
+meta = data@'meta.data'
+cells = rownames(meta[meta$seurat_clusters %in% c("10", "6", "3", "1", "9", "4"),])
+data = data[,cells]
+N = 7
+data <-FindVariableFeatures(data,selection.method='mean.var.plot')
+data <-RunPCA(data,features = VariableFeatures(data),verbose=F)
+data@reductions$pca2 <- data@reductions$pca
+data@reductions$pca2@"cell.embeddings" <- data@reductions$pca2@"cell.embeddings"[,1:N]
+data<- RunHarmony(data, group.by.vars = "chemistry", theta = 2, max.iter.harmony = 20, reduction = 'pca2', dims.use = 1:N)
+data<- RunUMAP(data, dims = 1:N, reduction = 'harmony', return.model=TRUE)
+data<- FindNeighbors(data, reduction = "harmony", dims = 1:N) %>% FindClusters()
+
+#run monocle 3 and import monocle object as in pervious examples
+#select lineage
+lineage = "END"
+start = 215
+end = 58
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("3", "2", "7", "10", "4", "9", "1", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 10)
+cds_new = combine_lineages(cds, 215)
+cds_new = order_cells(cds_new, root_pr_nodes = c("Y_215"))
+cds_new <- compress_lineages_v2(cds_new, start = 215, cores = 12)
+
+#Pericytes
+meta = data@'meta.data'
+cells = rownames(meta[meta$seurat_clusters %in% c("2", "5", "8"),])
+cells = rownames(meta[meta$seurat_clusters %in% c("10", "6", "3", "1", "9", "4"),])
+data = data[,cells]
+N = 5
+data <-FindVariableFeatures(data,selection.method='mean.var.plot')
+data <-RunPCA(data,features = VariableFeatures(data),verbose=F)
+data@reductions$pca2 <- data@reductions$pca
+data@reductions$pca2@"cell.embeddings" <- data@reductions$pca2@"cell.embeddings"[,1:N]
+data<- RunHarmony(data, group.by.vars = "chemistry", theta = 2, max.iter.harmony = 20, reduction = 'pca2', dims.use = 1:N)
+data<- RunUMAP(data, dims = 1:N, reduction = 'harmony', return.model=TRUE)
+data<- FindNeighbors(data, reduction = "harmony", dims = 1:N) %>% FindClusters()
+
+#select lineage, calculate pseudotime and compress
+lineage = "PER"
+start = 431
+end = 513
+cds<- isolate_graph(cds, start, end, lineage)
+cds <- isolate_lineage(cds, lineage, cl = 4, N = 10)
+cds_new = combine_lineages(cds, 431)
+cds_new = order_cells(cds_new, root_pr_nodes = c("Y_431"))
+cds_new <- compress_lineages_v2(cds_new, start = 431, cores = 12)
 
