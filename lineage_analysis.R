@@ -194,7 +194,183 @@ write.table(subset(cds_pr_test_res, q_value < 0.05), paste("pt_DGE_", lineage,".
 ##############################################
 #analysis of interneurons
 ##############################################
+#select interneurons and recluster
+meta = data@'meta.data'
+cells1 = rownames(meta[meta$seurat_clusters %in% c("27", "8", "31", "2", "9", "10"),])
+cells2 = rownames(meta[meta$seurat_clusters == "15" & meta$region_broad %in% c("GE", "MGE", "CGE", "LGE"),])
+data = data[,c(cells1, cells2)]
+data <-FindVariableFeatures(data,selection.method='mean.var.plot')
+data <-RunPCA(data,features = VariableFeatures(data),verbose=F)
+data@reductions$pca2 <- data@reductions$pca
+N = 14
+data@reductions$pca2@"cell.embeddings" <- data@reductions$pca2@"cell.embeddings"[,1:N]
+data<- RunHarmony(data, group.by.vars = "chemistry", theta = 2, max.iter.harmony = 20, reduction = 'pca2', dims.use = 1:N)
+data<- RunUMAP(data, dims = 1:N, reduction = 'harmony', return.model=TRUE)
+data<- FindNeighbors(data, reduction = "harmony", dims = 1:N) %>% FindClusters()
+#subcluster select clusters
+sel.cluster = "3"
+data.sub = FindSubCluster(data, sel.cluster, graph.name = "RNA_snn", resolution = 0.1)
+Idents(data.sub) <- "sub.cluster"
+sel.cluster = "10"
+data.sub = FindSubCluster(data, sel.cluster, graph.name = "RNA_snn", resolution = 0.1)
+Idents(data.sub) <- "sub.cluster"
+sel.cluster = "11"
+data.sub = FindSubCluster(data, sel.cluster, graph.name = "RNA_snn", resolution = 0.1)
+Idents(data.sub) <- "sub.cluster"
 
+#run monocle 3
+d = GetAssayData(object = data, assay = "RNA", slot = "counts")
+gene_annotation = as.data.frame(rownames(d))
+rownames(gene_annotation) = rownames(d)
+colnames(gene_annotation) = 'gene_short_name'
+meta = data@"meta.data"
+cds = new_cell_data_set(d, cell_metadata = meta, gene_metadata = gene_annotation)
+s.umap <- data@"reductions"$umap[[]]
+s.umap = s.umap[colnames(cds),]
+reducedDims(cds)$"UMAP" <- s.umap
+s.clusters = as.character(Idents(data))
+names(s.clusters) <- names(Idents(data))
+s.clusters = s.clusters[colnames(cds)]
+cds@clusters$"UMAP"$"clusters" <- s.clusters
+cds@clusters$UMAP$partitions <- cds@clusters$UMAP$clusters
+cds@clusters$UMAP$partitions[cds@clusters$UMAP$partitions != "1"] <- "1"
+graph_control = setNames(list(3, 1, 1, FALSE, TRUE, FALSE, NULL, 10, 1e-5, 0.05, 0.01), c("euclidean_distance_ratio","geodesic_distance_ratio","minimal_branch_len","orthogonal_proj_tip","prune_graph","scale","rann.k","maxiter","eps","L1.gamma","L1.sigma"))
+cds <- learn_graph(cds, use_partition = F, learn_graph_control = graph_control)
+
+#import monocle object and clean up trajectories
+cds = import_monocle(cds)
+node_plot(cds)
+ggsave(file="graph.png",width = 7, height = 6, units = "in",  dpi = 1200)
+cds = connect_nodes(cds, "Y_19", "Y_414", add_node = T)
+cds = connect_nodes(cds, "Y_381", "Y_106", add_node = T)
+cds = connect_nodes(cds, "Y_457", "Y_459", add_node = T)
+cds = connect_nodes(cds, "Y_108", "Y_117", add_node = T)
+
+
+######################
+###isolate lineages###
+######################
+#VIP
+lineage = "VIP"
+start = 203
+end = 36
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("16", "1", "5", "3_1")
+starting.clusters = c("19", "4", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2, start_regions = c("CGE", "GE"), starting_clusters = starting.clusters)
+
+#CALB2
+lineage = "CALB2"
+start = 203
+end = 386
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("16", "1", "5", "3_0")
+starting.clusters = c("19", "4", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2, start_regions = c("CGE", "GE"), starting_clusters = starting.clusters)
+
+#CCK
+lineage = "CCK"
+start = 203
+end = 17
+inc.node = c("Y_72", "Y_364")
+cds<- isolate_graph(cds, start, end, lineage, include_nodes = inc.node)
+sel.cluster = c("16", "1", "5", "10_0")
+starting.clusters = c("19", "4", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2, start_regions = c("CGE", "GE"), starting_clusters = starting.clusters)
+
+#RELN
+lineage = "RELN"
+start = 203
+end = 62
+inc.node = c("Y_72", "Y_364")
+cds<- isolate_graph(cds, start, end, lineage, include_nodes = inc.node)
+sel.cluster = c("16", "1", "5", "10_1")
+starting.clusters = c("19", "4", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2, start_regions = c("CGE", "GE"), starting_clusters = starting.clusters)
+
+#SV2C
+lineage = "SV2C"
+start = 203
+end = 429
+inc.node = c("Y_171", "Y_85")
+cds<- isolate_graph(cds, start, end, lineage, include_nodes = inc.node)
+sel.cluster = c("16", "1", "13", "11_2", "11_0")
+starting.clusters = c("19", "4", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2, start_regions = c("CGE", "GE"), starting_clusters = starting.clusters)
+
+#NOS
+lineage = "NOS"
+start = 203
+end = 61
+inc.node = c("Y_171", "Y_85")
+cds<- isolate_graph(cds, start, end, lineage, include_nodes = inc.node)
+sel.cluster = c("16", "1", "13", "11_2", "11_1")
+starting.clusters = c("19", "4", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2, start_regions = c("CGE", "GE"), starting_clusters = starting.clusters)
+
+#PV_MP
+lineage = "PV_MP"
+start = 203
+end = 409
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("2", "15", "9", "8", "17")
+starting.clusters = c("19", "4", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2, start_regions = c("MGE", "GE"), starting_clusters = starting.clusters)
+
+#PV
+lineage = "PV"
+start = 203
+end = 482
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("2", "15", "9", "8")
+starting.clusters = c("19", "4", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2, start_regions = c("MGE", "GE"), starting_clusters = starting.clusters)
+#SST
+lineage = "SST"
+start = 203
+end = 12
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("2", "14", "6", "12", "7")
+starting.clusters = c("19", "4", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2, start_regions = c("MGE", "GE"), starting_clusters = starting.clusters)
+
+#SST_RELN
+lineage = "SST_RELN"
+start = 203
+end = 465
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("2", "14", "6", "12")
+starting.clusters = c("19", "4", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2, start_regions = c("MGE", "GE"), starting_clusters = starting.clusters)
+
+combine lineages and calculate pseudotime
+cds = combine_lineages(cds, 203)
+cds_new = order_cells(cds_new, root_pr_nodes = "Y_203")
+
+#compress into metacells
+cds_new <- compress_lineages_v2(cds_new, start = 203)
+
+#identify lineage-specific genes
+meta = cds_new@colData
+lineages = names(cds_new@lineages)
+for(lineage in lineages){
+  factor = 0.05
+  N = 10000
+  print(lineage)
+  cds.sub = get_lineage_object(cds_new, lineage, 203, N = N)
+  meta.sub = meta[colnames(cds.sub),]
+  colData(cds.sub)$sex <- meta.sub$sex
+  colData(cds.sub)$region_broad <- meta.sub$region_broad
+  colData(cds.sub)$chemistry <- meta.sub$chemistry
+  colData(cds.sub)$PMI <- meta.sub$PMI
+  colData(cds.sub)$UMI <- meta.sub$nCount_RNA
+  data = counts(cds.sub)
+  rows=rownames(data)[rowSums(data> 0) > factor*ncol(data)]
+  cds.sel = cds.sub[rows]
+  cds_pr_test_res <- monocle3:::graph_test(cds.sel, neighbor_graph="principal_graph", verbose = T, cores = 24)
+  save(cds_pr_test_res, file = paste("Moran_", lineage,".R", sep = ""))
+  write.table(subset(cds_pr_test_res, q_value < 0.05), paste("pt_DGE_", lineage,".txt", sep = ""), sep ="\t", quote = F)
+}
 
 #############################
 #analysis of macroglial cells (astrocytes, oligos)
