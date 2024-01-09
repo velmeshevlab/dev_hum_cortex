@@ -435,7 +435,68 @@ cds_new <- compress_lineages_v2(cds_new, start = 495, cores = 12)
 ######################
 #analysis of microglia
 ######################
+#select microglia and recluster
+meta = data@'meta.data'
+cells = rownames(meta[meta$seurat_clusters == c("19"),])
+data = data[,cells]
+data <-FindVariableFeatures(data,selection.method='mean.var.plot')
+data <-RunPCA(data,features = VariableFeatures(data),verbose=F)
+data@reductions$pca2 <- data@reductions$pca
+N = 9
+data@reductions$pca2@"cell.embeddings" <- data@reductions$pca2@"cell.embeddings"[,1:N]
+data<- RunHarmony(data, group.by.vars = "chemistry", theta = 2, max.iter.harmony = 20, reduction = 'pca2', dims.use = 1:N)
+data<- RunUMAP(data, dims = 1:N, reduction = 'harmony', return.model=TRUE)
+data<- FindNeighbors(data, reduction = "harmony", dims = 1:N) %>% FindClusters()
 
+#run monocle 3
+d = GetAssayData(object = data, assay = "RNA", slot = "counts")
+gene_annotation = as.data.frame(rownames(d))
+rownames(gene_annotation) = rownames(d)
+colnames(gene_annotation) = 'gene_short_name'
+meta = data@"meta.data"
+cds = new_cell_data_set(d, cell_metadata = meta, gene_metadata = gene_annotation)
+s.umap <- data@"reductions"$umap[[]]
+s.umap = s.umap[colnames(cds),]
+reducedDims(cds)$"UMAP" <- s.umap
+s.clusters = as.character(Idents(data))
+names(s.clusters) <- names(Idents(data))
+s.clusters = s.clusters[colnames(cds)]
+cds@clusters$"UMAP"$"clusters" <- s.clusters
+cds@clusters$UMAP$partitions <- cds@clusters$UMAP$clusters
+cds@clusters$UMAP$partitions[cds@clusters$UMAP$partitions != "1"] <- "1"
+graph_control = setNames(list(3, 1, 5, FALSE, TRUE, FALSE, NULL, 10, 1e-5, 0.05, 0.01), c("euclidean_distance_ratio","geodesic_distance_ratio","minimal_branch_len","orthogonal_proj_tip","prune_graph","scale","rann.k","maxiter","eps","L1.gamma","L1.sigma"))
+cds <- learn_graph(cds, use_partition = F, learn_graph_control = graph_control)
+
+###import monocle object and isolate lineages
+#MG_1
+lineage = "MG_1"
+start = 143
+end = 74
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("3", "6", "5", "10", "8", "0")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 5)
+#MG_2
+lineage = "MG_2"
+start = 143
+end = 473
+inc.node = c("Y_200")
+cds<- isolate_graph(cds, start, end, lineage, include_nodes = inc.node)
+sel.cluster = c("3", "6", "5", "10", "7", "2", "1", "4")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 5)
+#MG_3
+lineage = "MG_3"
+start = 143
+end = 77
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("3", "6", "9")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 5)
+
+#combine lineages and calculate pseudotime
+cds_new = combine_lineages(cds, 143)
+cds_new = order_cells(cds_new, root_pr_nodes = c("Y_143"))
+
+#compress into metacells
+cds_new <- compress_lineages_v2(cds_new, start = 143, cores = 12)
 ###########################
 #analysis of vascular cells
 ###########################
