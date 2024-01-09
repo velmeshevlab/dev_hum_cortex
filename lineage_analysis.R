@@ -67,9 +67,7 @@ cds = connect_nodes(cds, "Y_2443", "Y_275", add_node = T)
 cds = connect_nodes(cds, "Y_302", "Y_201", add_node = T)
 cds = connect_nodes(cds, "Y_775", "Y_654", add_node = T)
 
-######################
-###isolate lineages###
-######################
+###isolate lineages
 #L2-3
 lineage = "L2_3"
 start = 1334
@@ -246,10 +244,7 @@ cds = connect_nodes(cds, "Y_381", "Y_106", add_node = T)
 cds = connect_nodes(cds, "Y_457", "Y_459", add_node = T)
 cds = connect_nodes(cds, "Y_108", "Y_117", add_node = T)
 
-
-######################
-###isolate lineages###
-######################
+###isolate lineages
 #VIP
 lineage = "VIP"
 start = 203
@@ -343,7 +338,7 @@ sel.cluster = c("2", "14", "6", "12")
 starting.clusters = c("19", "4", "0")
 cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2, start_regions = c("MGE", "GE"), starting_clusters = starting.clusters)
 
-combine lineages and calculate pseudotime
+#combine lineages and calculate pseudotime
 cds = combine_lineages(cds, 203)
 cds_new = order_cells(cds_new, root_pr_nodes = "Y_203")
 
@@ -375,6 +370,67 @@ for(lineage in lineages){
 #############################
 #analysis of macroglial cells (astrocytes, oligos)
 #############################
+#select glial projenitors, astrocytes and oligos and recluster
+meta = data@'meta.data'
+cells = rownames(meta[meta$seurat_clusters %in% c("15", "25", "4", "5", "6", "1") & !(meta$region_broad %in% c("GE", "MGE", "CGE", "LGE")),])
+data = data[,cells]
+data <-FindVariableFeatures(data,selection.method='mean.var.plot')
+data <-RunPCA(data,features = VariableFeatures(data),verbose=F)
+data@reductions$pca2 <- data@reductions$pca
+N = 13
+data@reductions$pca2@"cell.embeddings" <- data@reductions$pca2@"cell.embeddings"[,1:N]
+data<- RunHarmony(data, group.by.vars = "chemistry", theta = 2, max.iter.harmony = 20, reduction = 'pca2', dims.use = 1:N)
+data<- RunUMAP(data, dims = 1:N, reduction = 'harmony', return.model=TRUE)
+data<- FindNeighbors(data, reduction = "harmony", dims = 1:N) %>% FindClusters()
+
+#run monocle 3
+d = GetAssayData(object = data, assay = "RNA", slot = "counts")
+gene_annotation = as.data.frame(rownames(d))
+rownames(gene_annotation) = rownames(d)
+colnames(gene_annotation) = 'gene_short_name'
+meta = data@"meta.data"
+cds = new_cell_data_set(d, cell_metadata = meta, gene_metadata = gene_annotation)
+s.umap <- data@"reductions"$umap[[]]
+s.umap = s.umap[colnames(cds),]
+reducedDims(cds)$"UMAP" <- s.umap
+s.clusters = as.character(Idents(data))
+names(s.clusters) <- names(Idents(data))
+s.clusters = s.clusters[colnames(cds)]
+cds@clusters$"UMAP"$"clusters" <- s.clusters
+cds@clusters$UMAP$partitions <- cds@clusters$UMAP$clusters
+cds@clusters$UMAP$partitions[cds@clusters$UMAP$partitions != "1"] <- "1"
+graph_control = setNames(list(3, 1, 5, FALSE, TRUE, FALSE, NULL, 10, 1e-5, 0.05, 0.01), c("euclidean_distance_ratio","geodesic_distance_ratio","minimal_branch_len","orthogonal_proj_tip","prune_graph","scale","rann.k","maxiter","eps","L1.gamma","L1.sigma"))
+cds <- learn_graph(cds, use_partition = F, learn_graph_control = graph_control)
+
+###import monocle object and isolate lineages
+#AST_PP
+lineage = "AST_PP"
+start = 495
+end = 865
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("5", "7", "18", "14", "4", "11", "6", "3")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2)
+#AST_FB
+lineage = "AST_FB"
+start = 495
+end = 994
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("5", "7", "18", "14", "13", "12")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2)
+#OL
+lineage = "OL"
+start = 495
+end = 46
+cds<- isolate_graph(cds, start, end, lineage)
+sel.cluster = c("5", "7", "10", "19", "8", "16", "0", "15", "20", "17", "2", "1", "9")
+cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 2)
+
+#combine lineages and calculate pseudotime
+cds_new = combine_lineages(cds, 495)
+cds_new = order_cells(cds_new, root_pr_nodes = c("Y_495"))
+
+#compress into metacells
+cds_new <- compress_lineages_v2(cds_new, start = 495, cores = 12)
 
 ######################
 #analysis of microglia
