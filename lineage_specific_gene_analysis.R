@@ -38,6 +38,7 @@ res = res[res != 0]
 res = cbind(as.data.frame(res), rep(lineage, length(res)))
 write.table(res, paste0(lineage, "_spec.txt"), quote = F, sep = "\t")
 }
+
 ###########################
 #classify genes based on expression trend and assign to biological age
 ###########################
@@ -73,5 +74,8 @@ res = get_max_age_v2(cds_new, meta = meta, lineage = lineage, start = 203)
 write.table(t(res), paste0("mod_", lineage,".txt"), sep = "\t", quote = F)
 }
 
+###########################
+#find branch-specific genes
+###########################
 
 
