@@ -142,6 +142,8 @@ cds_new <- compress_lineage_v2(cds_new, "L4", start = 1334)
 cds_new <- compress_lineage_v2(cds_new, "L5", start = 1320)
 cds_new <- compress_lineage_v2(cds_new, "L6", start = 1320)
 
+saveRDS(cds_new, file = "ExNeu_AL.RDS")
+
 #identify lineage-specific genes
 #modify monocle 3 functions to enable linear model
 trace('graph_test', edit = T, where = asNamespace("monocle3"))
@@ -344,6 +346,7 @@ cds_new = order_cells(cds_new, root_pr_nodes = "Y_203")
 
 #compress into metacells
 cds_new <- compress_lineages_v2(cds_new, start = 203)
+saveRDS(cds_new, file = "IN_AL.RDS")
 
 #identify lineage-specific genes
 meta = cds_new@colData
@@ -431,6 +434,7 @@ cds_new = order_cells(cds_new, root_pr_nodes = c("Y_495"))
 
 #compress into metacells
 cds_new <- compress_lineages_v2(cds_new, start = 495, cores = 12)
+saveRDS(cds_new, file = "glia_AL.RDS")
 
 ######################
 #analysis of microglia
@@ -497,6 +501,8 @@ cds_new = order_cells(cds_new, root_pr_nodes = c("Y_143"))
 
 #compress into metacells
 cds_new <- compress_lineages_v2(cds_new, start = 143, cores = 12)
+saveRDS(cds_new, file = "MG_AL.RDS")
+
 ###########################
 #analysis of vascular cells
 ###########################
@@ -526,6 +532,7 @@ cds <- isolate_lineage(cds, lineage, sel_clusters = sel.cluster, cl = 4, N = 10)
 cds_new = combine_lineages(cds, 215)
 cds_new = order_cells(cds_new, root_pr_nodes = c("Y_215"))
 cds_new <- compress_lineages_v2(cds_new, start = 215, cores = 12)
+saveRDS(cds_new, file = "END_AL.RDS")
 
 #Pericytes
 meta = data@'meta.data'
@@ -550,4 +557,4 @@ cds <- isolate_lineage(cds, lineage, cl = 4, N = 10)
 cds_new = combine_lineages(cds, 431)
 cds_new = order_cells(cds_new, root_pr_nodes = c("Y_431"))
 cds_new <- compress_lineages_v2(cds_new, start = 431, cores = 12)
-
+saveRDS(cds_new, file = "PER_AL.RDS")
