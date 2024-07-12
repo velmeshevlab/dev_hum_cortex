@@ -17,7 +17,6 @@ saveRDS(cds_comb, file = "ALL_AL.RDS")
 ###########################
 #find lineage-specific genes
 ###########################
-cds_comb = readRDS(file = "ALL_AL.RDS")
 lineages = names(cds_comb@lineages)
 lineages = lineages[lineages!="SP"]
 for(lineage in lineages){
