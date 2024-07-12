@@ -18,11 +18,12 @@ cds_comb = combine_objects(cds_comb, END, "", "")
 readRDS(file = "PER_AL.RDS")
 PER = cds_new
 cds_comb = combine_objects(cds_comb, PER, "", "")
+saveRDS(cds_comb, file = "ALL_AL.RDS")
 
 ###########################
 #find lineage-specific genes
 ###########################
-l = load(file = "ALL_AL.R")
+readRDS(file = "ALL_AL.RDS")
 lineages = names(cds_comb@lineages)
 lineages = lineages[lineages!="SP"]
 for(lineage in lineages){
