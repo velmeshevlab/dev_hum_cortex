@@ -1,21 +1,21 @@
 ###########################
 #combine all lineages
 ###########################
-l = load(file = "IN_AL.R")
-IN = cds_new
-l = load(file = "ExNeu_AL.R")
+l = readRDS(file = "ExNeu_AL.RDS")
 ExNeu = cds_new
+readRDS(file = "IN_AL.RDS")
+IN = cds_new
 cds_comb = combine_objects(ExNeu, IN, "", "")
-l = load(file = "glia_AL.R")
+readRDS(file = "glia_AL.RDS")
 Glia = cds_new
 cds_comb = combine_objects(cds_comb, Glia, "", "")
-l = load(file = "MG_AL.R")
+readRDS(file = "MG_AL.RDS")
 MG = cds_new
 cds_comb = combine_objects(cds_comb, MG, "", "")
-l = load(file = "END_AL.R")
+readRDS(file = "END_AL.RDS")
 END = cds_new
 cds_comb = combine_objects(cds_comb, END, "", "")
-l = load(file = "PER_AL.R")
+readRDS(file = "PER_AL.RDS")
 PER = cds_new
 cds_comb = combine_objects(cds_comb, PER, "", "")
 
