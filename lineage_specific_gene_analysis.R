@@ -33,8 +33,7 @@ write.table(res, paste0(lineage, "_spec.txt"), quote = F, sep = "\t")
 }
 
 ###########################
-#classify genes based on expression trend and assign to biological age.
-#final formatting
+#classify genes based on expression trend and assign to biological age and format output
 ###########################
 meta = read.data("meta.txt")
 #excitatory neurons
