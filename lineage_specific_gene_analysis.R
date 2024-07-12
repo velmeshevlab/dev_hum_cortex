@@ -38,3 +38,40 @@ res = res[res != 0]
 res = cbind(as.data.frame(res), rep(lineage, length(res)))
 write.table(res, paste0(lineage, "_spec.txt"), quote = F, sep = "\t")
 }
+###########################
+#classify genes based on expression trend and assign to biological age
+###########################
+#excitatory neurons
+readRDS(file = "ExNeu_AL.RDS")
+for(lineage in lineages){
+  print(lineage)
+  res = get_max_age_v2(cds_new, meta = meta, lineage = lineage, start = 1334)
+  write.table(t(res), paste0("mod_", lineage,".txt"), sep = "\t", quote = F)
+}
+lineages = c("L5", "L6")
+for(lineage in lineages){
+  print(lineage)
+  res = get_max_age_v2(cds_new, meta = meta, lineage = lineage, start = 1320)
+  write.table(t(res), paste0("mod_", lineage,".txt"), sep = "\t", quote = F)
+}
+
+#interneurons
+readRDS(file = "IN_AL.RDS")
+lineages = names(cds_new@lineages)
+for(lineage in lineages){
+print(lineage)
+res = get_max_age_v2(cds_new, meta = meta, lineage = lineage, start = 203)
+write.table(t(res), paste0("mod_", lineage,".txt"), sep = "\t", quote = F)
+}
+
+#macroglial cells
+readRDS(file = "glia_AL.RDS")
+lineages = names(cds_new@lineages)
+for(lineage in lineages){
+print(lineage)
+res = get_max_age_v2(cds_new, meta = meta, lineage = lineage, start = 203)
+write.table(t(res), paste0("mod_", lineage,".txt"), sep = "\t", quote = F)
+}
+
+
+
