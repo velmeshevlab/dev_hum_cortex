@@ -1534,3 +1534,51 @@ colored_bars(cols, hcd, horiz = F, y_shift = -40, y_scale = 200)
 hcd %>% rect.dendrogram(cluster = clust, k = k, horiz = F, lwd = 5, lower_rect = -280, border = myCol[1:k])
 dev.off()
 }
+
+get_pt_exp <-function(cds_new, factor = 1.2, window_ratio = 0.01, I = 0.1){                     
+lineages = gsub("_Male", "", names(cds_new@lineages))
+lineages = gsub("_Female", "", lineages)
+lineages = unique(lineages)
+lineages = lineages[lineages != "MG_3"]
+for(lin in lineages){
+  print(lin)
+  #male
+  lineage = paste0(lin,"_Male")
+  comp.lineage = paste0(lin,"_Female")
+  d = get_pt_exp(cds_new, lineage, I = I)
+  names = gsub(paste0(lineage, "__"), "", rownames(d))
+  cds_name = deparse(substitute(cds_new))
+  input = paste0("fit = ",cds_name,"@expectation$", lineage)
+  eval(parse(text=input))
+  names1 = names[names %in% colnames(fit)]
+  d = get_pt_exp(cds_new, comp.lineage, I = 0)
+  names = gsub(paste0(comp.lineage, "__"), "", rownames(d))
+  input = paste0("fit = ",cds_name,"@expectation$", comp.lineage)
+  eval(parse(text=input))
+  names2 = names[names %in% colnames(fit)]
+  names = union(names1, names2)
+  res = sapply(names, AUC_window_sub, cds = cds_new, lineage = lineage, comp_lineages = comp.lineage, factor = factor, window_ratio = window_ratio)
+  res = res[res != 0]
+  res = cbind(as.data.frame(res), rep(lineage, length(res)))
+  write.table(res, paste0(lineage, "_spec.txt"), quote = F, sep = "\t")
+  #female
+  lineage = paste0(lin,"_Female")
+  comp.lineage = paste0(lin,"_Male")
+  d = get_pt_exp(cds_new, lineage, I = 0)
+  names = gsub(paste0(lineage, "__"), "", rownames(d))
+  cds_name = deparse(substitute(cds_new))
+  input = paste0("fit = ",cds_name,"@expectation$", lineage)
+  eval(parse(text=input))
+  names1 = names[names %in% colnames(fit)]
+  d = get_pt_exp(cds_new, comp.lineage, I = I)
+  names = gsub(paste0(comp.lineage, "__"), "", rownames(d))
+  input = paste0("fit = ",cds_name,"@expectation$", comp.lineage)
+  eval(parse(text=input))
+  names2 = names[names %in% colnames(fit)]
+  names = union(names1, names2)
+  res = sapply(names, AUC_window_sub, cds = cds_new, lineage = lineage, comp_lineages = comp.lineage, factor = factor, window_ratio = window_ratio)
+  res = res[res != 0]
+  res = cbind(as.data.frame(res), rep(lineage, length(res)))
+  write.table(res, paste0(lineage, "_spec.txt"), quote = F, sep = "\t")
+}
+  }
