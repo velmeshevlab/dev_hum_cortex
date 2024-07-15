@@ -1535,7 +1535,7 @@ hcd %>% rect.dendrogram(cluster = clust, k = k, horiz = F, lwd = 5, lower_rect =
 dev.off()
 }
 
-get_pt_exp <-function(cds_new, factor = 1.2, window_ratio = 0.01, I = 0.1){                     
+get_sex_enriched_genes <-function(cds_new, factor = 1.2, window_ratio = 0.01, I = 0.1){                     
 lineages = gsub("_Male", "", names(cds_new@lineages))
 lineages = gsub("_Female", "", lineages)
 lineages = unique(lineages)
