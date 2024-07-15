@@ -101,3 +101,7 @@ print(lineage)
 res = get_max_age_v2(cds_new, meta = meta, lineage = lineage, start = 1320)
 write.table(t(res), paste0("mod_", lineage,".txt"), sep = "\t", quote = F)
 }
+
+#######################################
+Interneurons
+#######################################
