@@ -85,52 +85,8 @@ write.table(subset(cds_pr_test_res, q_value < 0.05), paste("pt_DGE_", lineage,"_
 #get sex-enriched lineage genes
 exneu_sex = combine_objects(cds.male, cds.female, "_Male", "_Female")
 cds_new = combine_objects(exneu_sex, in_sex, "", "")
-lineages = gsub("_Male", "", names(cds_new@lineages))
-lineages = gsub("_Female", "", lineages)
-lineages = unique(lineages)
-lineages = lineages[lineages != "MG_3"]
-for(lin in lineages){
-print(lin)
-#male
-lineage = paste0(lin,"_Male")
-comp.lineage = paste0(lin,"_Female")
-d = get_pt_exp(cds_new, lineage, I = 0.1)
-names = gsub(paste0(lineage, "__"), "", rownames(d))
-cds_name = deparse(substitute(cds_new))
-input = paste0("fit = ",cds_name,"@expectation$", lineage)
-eval(parse(text=input))
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds_new, comp.lineage, I = 0)
-names = gsub(paste0(comp.lineage, "__"), "", rownames(d))
-input = paste0("fit = ",cds_name,"@expectation$", comp.lineage)
-eval(parse(text=input))
-names2 = names[names %in% colnames(fit)]
-names = union(names1, names2)
-res = sapply(names, AUC_window_sub, cds = cds_new, lineage = lineage, comp_lineages = comp.lineage, factor = 1.2, window_ratio = 0.01)
-res = res[res != 0]
-res = cbind(as.data.frame(res), rep(lineage, length(res)))
-write.table(res, paste0(lineage, "_spec.txt"), quote = F, sep = "\t")
-#female
-lineage = paste0(lin,"_Female")
-comp.lineage = paste0(lin,"_Male")
-d = get_pt_exp(cds_new, lineage, I = 0)
-names = gsub(paste0(lineage, "__"), "", rownames(d))
-cds_name = deparse(substitute(cds_new))
-input = paste0("fit = ",cds_name,"@expectation$", lineage)
-eval(parse(text=input))
-names1 = names[names %in% colnames(fit)]
-d = get_pt_exp(cds_new, comp.lineage, I = 0.1)
-names = gsub(paste0(comp.lineage, "__"), "", rownames(d))
-input = paste0("fit = ",cds_name,"@expectation$", comp.lineage)
-eval(parse(text=input))
-names2 = names[names %in% colnames(fit)]
-names = union(names1, names2)
-res = sapply(names, AUC_window_sub, cds = cds_new, lineage = lineage, comp_lineages = comp.lineage, factor = 1.2, window_ratio = 0.01)
-res = res[res != 0]
-res = cbind(as.data.frame(res), rep(lineage, length(res)))
-write.table(res, paste0(lineage, "_spec.txt"), quote = F, sep = "\t")
-}
-
+get_sex_enriched_genes(cds_new, factor = 1.2, window_ratio = 0.01, I = 0.1)
+                       
 #classify genes
 meta = read.table("meta.txt", row.names=1, header=T, sep="\t", check.names = F)
 lineages = c("L2_3", "L4", "L5_6_IT", "SP")
